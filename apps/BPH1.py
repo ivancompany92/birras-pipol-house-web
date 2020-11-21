@@ -68,7 +68,7 @@ def cheap_beers(number, brands, quantity_pack, promotion_beer, supermarket_beer,
         # we add the url of the beer in his supermarket, if the customer push the button:
         if number == 0:
             if st.button('Open the web site 1:'):
-                print(best_link)
+                st.code(webbrowser.open_new_tab(best_link))
         elif number == 1:
             if st.button('Open the web site 2:'):
                 webbrowser.open_new_tab(best_link)
