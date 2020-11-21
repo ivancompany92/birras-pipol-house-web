@@ -66,21 +66,21 @@ def cheap_beers(number, brands, quantity_pack, promotion_beer, supermarket_beer,
         else:
             st.write('sold in packs of ', size_pack[number], ' units with a size of: `%s`' % size_unit[number])
         # we add the url of the beer in his supermarket, if the customer push the button:
-        if number == 0:
-            if st.button('Open the web site 1:'):
-                st.write('web site: `%s`' % best_link)
-        elif number == 1:
-            if st.button('Open the web site 2:'):
-                webbrowser.open_new_tab(best_link)
-        elif number == 2:
-            if st.button('Open the web site 3'):
-                webbrowser.open_new_tab(best_link)
-        elif number == 3:
-            if st.button('Open the web site 4'):
-                webbrowser.open_new_tab(best_link)
-        elif number == 4:
-            if st.button('Open the web site 5'):
-                webbrowser.open_new_tab(best_link)
+        # if number == 0:
+        #     if st.button('Open the web site 1:'):
+        #         webbrowser.open_new_tab(best_link)
+        # elif number == 1:
+        #     if st.button('Open the web site 2:'):
+        #         webbrowser.open_new_tab(best_link)
+        # elif number == 2:
+        #     if st.button('Open the web site 3'):
+        #         webbrowser.open_new_tab(best_link)
+        # elif number == 3:
+        #     if st.button('Open the web site 4'):
+        #         webbrowser.open_new_tab(best_link)
+        # elif number == 4:
+        #     if st.button('Open the web site 5'):
+        #         webbrowser.open_new_tab(best_link)
 
 
 # main function, call all other functions for get the dashboard with cheap beers:
