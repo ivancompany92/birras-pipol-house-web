@@ -229,7 +229,12 @@ def get_volumen_unid_al_ce_dia(data_text):
 
 # function to get image of the Alcampo beers:
 def get_image_alcampo(data_text):
-    return data_text.find_all('img')[0].get('data-blzsrc')
+    first = data_text.find_all('img')[0].get('src')
+    second = data_text.find_all('img')[0].get('data-blzsrc')
+    if '==' in first:
+        return second
+    else:
+        return first
 
 
 # function to get dataframe of Alcampo beers with all information
