@@ -91,6 +91,7 @@ def app():
     data.sort_values(['price_liter', 'promotion', 'quantity_pack'], inplace=True, ignore_index=True)
 
     st.title('BirrasPipol House!')
+    st.markdown('Created by: Ivan Company    [linkedin](https://www.linkedin.com/in/ivan-company-hernando/)')
     # we put some information about the supermarkets
     st.markdown('''Welcome beer lovers! \U0001f37a  
 In this web you will be able to discover the price of your favorite beer in the following supermarkets:
