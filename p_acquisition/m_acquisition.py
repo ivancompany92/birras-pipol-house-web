@@ -17,11 +17,11 @@ def scraping_carrefour():
     print('Starting to scrape Carrefour...')
     list_pages_carrefour = list(range(0, 336, 24))
     table_pages_carrefour = []
-    for num in list_pages_carrefour:
-        url_carrefour = f'https://www.carrefour.es/supermercado/bebidas/cerveza/todas-las-cervezas/N-1uq8b5u/c?No={num}'
+    for number in list_pages_carrefour:
+        url_carrefour = f'https://www.carrefour.es/supermercado/bebidas/cerveza/todas-las-cervezas/cat140001/c?offset={number}'
         html = requests.get(url_carrefour, headers=HEADER).text
         soup_carrefour = BeautifulSoup(html, 'lxml')
-        table_carrefour = soup_carrefour.find_all({'article': 'product-card-item'})
+        table_carrefour = soup_carrefour.find_all({'main': 'base-layout__main-container wrapped'})
         table_pages_carrefour.append(table_carrefour)
     return table_pages_carrefour
 
@@ -31,14 +31,10 @@ def info_carrefour(scraping_list_info):
     data_raw_carrefour = []
     for i in range(len(scraping_list_info)):
         for j in range(len(scraping_list_info[i])):
-            rows_carrefour = scraping_list_info[i][j].find_all(['span', 'p', 'a'], {
-                'class': ['price', 'price-less', 'format-price', 'js-gap-product-click-super']})
-            promotion_carrefour = scraping_list_info[i][j].find_all(['p'], {'class': ['promocion-copy']})
-            if len(rows_carrefour) != 0:
-                if len(promotion_carrefour) != 0:
-                    data_raw_carrefour.append(rows_carrefour + promotion_carrefour)
-                else:
-                    data_raw_carrefour.append(rows_carrefour)
+            rows_carrefour = scraping_list_info[i][j].find_all(['span', 'p', 'a', 'img'], {
+                'class': ['product-card__price', 'product-card__price--current', 'product-card__price-per-unit',
+                          'link product-card__title-link track-click', 'product-card__image']})
+            data_raw_carrefour.append(rows_carrefour)
     print('Finished scraping Carrefour')
     return data_raw_carrefour
 
@@ -46,7 +42,7 @@ def info_carrefour(scraping_list_info):
 # function to get price of carrefour beers
 def get_price_carrefour(data_text):
     price_raw = data_text.text
-    price = re.sub('\xa0€', '', price_raw)
+    price = re.sub('[€ ]+', '', price_raw)
     price = re.sub('\n', '', price)
     return float(re.sub(",", '.', price))
 
@@ -114,29 +110,34 @@ def get_quantity_pack(data_text):
 
 # function to get image of carrefour beers
 def get_image_carrefour(data_text):
-    return data_text.find_all('img')[0].get('src')
+    return data_text.get('src')
 
 
 # function to get dataframe of carrefour beers with all information
 def database_carrefour(data_raw_carrefour):
-    data_beer_carrefour = pd.DataFrame(index=range(0, len(data_raw_carrefour)),
+    data_beer_carrefour = pd.DataFrame(index=range(0, len(data_raw_carrefour)*24),
                                        columns=['price', 'price_liter', 'title', 'promotion', 'brand',
                                                 'container', 'volumen_unid', 'quantity_pack', 'image_url',
                                                 'supermarket'])
     for beer_number in range(len(data_raw_carrefour)):
-        data_beer_carrefour.iloc[beer_number, 0] = get_price_carrefour(data_raw_carrefour[beer_number][1])
-        data_beer_carrefour.iloc[beer_number, 1] = get_price_l_carrefour(data_raw_carrefour[beer_number][2])
-        data_beer_carrefour.iloc[beer_number, 2] = get_title_carrefour(data_raw_carrefour[beer_number][3])
-        data_beer_carrefour.iloc[beer_number, 4] = get_brand_carrefour(data_raw_carrefour[beer_number][3])
-        data_beer_carrefour.iloc[beer_number, 5] = get_container(data_raw_carrefour[beer_number][3])
-        data_beer_carrefour.iloc[beer_number, 6] = get_volumen_unid_carrefour(data_raw_carrefour[beer_number][3])
-        data_beer_carrefour.iloc[beer_number, 7] = get_quantity_pack(data_raw_carrefour[beer_number][3])
-        data_beer_carrefour.iloc[beer_number, 8] = get_image_carrefour(data_raw_carrefour[beer_number][0])
-        data_beer_carrefour.iloc[beer_number, 9] = 'Carrefour'
-        if len(data_raw_carrefour[beer_number]) > 4:
-            data_beer_carrefour.iloc[beer_number, 3] = get_promotion_carrefour(data_raw_carrefour[beer_number][4])
-        else:
-            data_beer_carrefour.iloc[beer_number, 3] = 'No promotion'
+        count = 0
+        rang = len(data_raw_carrefour[beer_number]) // 4
+        for product in range(rang):
+            num = beer_number*24+count
+            data_beer_carrefour.iloc[num, 0] = get_price_carrefour(data_raw_carrefour[beer_number][1+product*4])
+            data_beer_carrefour.iloc[num, 1] = get_price_l_carrefour(data_raw_carrefour[beer_number][2+product*4])
+            data_beer_carrefour.iloc[num, 2] = get_title_carrefour(data_raw_carrefour[beer_number][3+product*4])
+            data_beer_carrefour.iloc[num, 4] = get_brand_carrefour(data_raw_carrefour[beer_number][3+product*4])
+            data_beer_carrefour.iloc[num, 5] = get_container(data_raw_carrefour[beer_number][3+product*4])
+            data_beer_carrefour.iloc[num, 6] = get_volumen_unid_carrefour(data_raw_carrefour[beer_number][3+product*4])
+            data_beer_carrefour.iloc[num, 7] = get_quantity_pack(data_raw_carrefour[beer_number][3+product*4])
+            data_beer_carrefour.iloc[num, 8] = 'https://revertia.com/wp-content/uploads/2014/04/carrefour-logo.jpg'
+            # data_beer_carrefour.iloc[num, 8] = get_image_carrefour(data_raw_carrefour[beer_number][0])
+            data_beer_carrefour.iloc[num, 9] = 'Carrefour'
+            data_beer_carrefour.iloc[num, 3] = 'No promotion'
+            count += 1
+
+    data_beer_carrefour.dropna(how='all', inplace=True)
     return data_beer_carrefour
 
 
